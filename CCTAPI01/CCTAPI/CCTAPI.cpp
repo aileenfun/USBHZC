@@ -82,72 +82,35 @@ int CCT_API CCCTAPIAppUSB::stopCap()
 }
 void CCT_API CCCTAPIAppUSB::WrSensorReg(unsigned short iAddr, unsigned short iValue)
 {
-	USB_ORDER     m_sUsbOrder;
-	BYTE  m_byData[64];
-	m_sUsbOrder.pData=m_byData;
-
-	m_sUsbOrder.ReqCode = 0xF1;
-	m_sUsbOrder.DataBytes = 2;
-	m_sUsbOrder.Direction = 0;
-	m_sUsbOrder.Index = iAddr;
-	m_sUsbOrder.Value = iValue;
-	SendOrder(&m_sUsbOrder);
+	int len=2;
+	usbOrderWrapper(0xF1,ORDER_OUT,iAddr,iValue,0,len);
 	return;
 
 }
 unsigned short CCT_API CCCTAPIAppUSB::RdSensorReg(unsigned short iAddr)
 {
-		USB_ORDER     m_sUsbOrder;
-	BYTE  m_byData[64];
-	m_sUsbOrder.pData=m_byData;
-
-	m_byData[0] = '0';
-	m_byData[1] = '0';
-	m_sUsbOrder.ReqCode = 0xF2;
-	m_sUsbOrder.DataBytes = 2;
-	m_sUsbOrder.Direction = ORDER_IN;
-	m_sUsbOrder.Index = iAddr;
-	SendOrder(&m_sUsbOrder);
 	UINT8 rxval[2];
-	memcpy(rxval, m_byData, 2);
+	int len=2;
+	usbOrderWrapper(0xF2,ORDER_IN,iAddr,0,rxval,len);
+	
 	unsigned short irxval = rxval[0] << 8;
 	irxval += rxval[1];
-
 	return irxval;
 
 }
 void CCCTAPIAppUSB::WrFpgaReg(unsigned char iAddr, unsigned char iValue)
 {
-	USB_ORDER     m_sUsbOrder;
-	BYTE  m_byData[64];
-	m_sUsbOrder.pData=m_byData;
-
-
-	m_sUsbOrder.ReqCode = 0xF3; 
-	m_sUsbOrder.DataBytes = 1;
-	m_sUsbOrder.Direction = ORDER_OUT;
-	m_sUsbOrder.Index = iAddr;
-	m_sUsbOrder.Value = iValue;
-	SendOrder(&m_sUsbOrder);
+	int len=1;
+	usbOrderWrapper(0xF3,ORDER_OUT,iAddr,iValue,0,len);
 	return;
 
 }
 unsigned char CCCTAPIAppUSB::RdFpgaReg(unsigned char iAddr)
-{
-	USB_ORDER     m_sUsbOrder;
-	BYTE  m_byData[64];
-	m_sUsbOrder.pData=m_byData;
-
-	m_byData[0] = '0';
-	m_sUsbOrder.ReqCode = 0xF4;
-	m_sUsbOrder.DataBytes = 1;
-	m_sUsbOrder.Direction = ORDER_IN;
-	m_sUsbOrder.Index = iAddr;
-	SendOrder(&m_sUsbOrder);
-	UINT8 rxval[1];
-	memcpy(rxval, m_byData, 1);
-	UINT8 irxval = rxval[0];
-	return irxval;
+{	
+	UINT8 rxval[1]={0};
+	int len=1;
+	usbOrderWrapper(0xF4,ORDER_IN,iAddr,0,rxval,len);
+	return rxval[1];
 }
 unsigned char CCT_API  CCCTAPIAppUSB::WrEEPROM(WORD iAddr,WORD iValue)
 {
@@ -164,40 +127,65 @@ unsigned char CCT_API  CCCTAPIAppUSB::RdEEPROM(WORD iAddr,unsigned char * buffer
 	length=len;
 	return len;
 }
+/*
+int CCCTAPIAppUSB::SendOrder( PUSB_ORDER pOrder )
+{
+	if(m_Usb!=NULL&&m_Usb->IsOpen())
+	{
+		m_Usb->ControlEndPt->Target=(CTL_XFER_TGT_TYPE)pOrder->Target;
+		m_Usb->ControlEndPt->ReqType=(CTL_XFER_REQ_TYPE)pOrder->ReqType;
+		m_Usb->ControlEndPt->Direction=(CTL_XFER_DIR_TYPE)pOrder->Direction;
+		m_Usb->ControlEndPt->ReqCode=pOrder->ReqCode;
+		m_Usb->ControlEndPt->Value=pOrder->Value;
+		m_Usb->ControlEndPt->Index=pOrder->Index;
+		LONG lBytes=0;
+		lBytes=pOrder->DataBytes;
+		if(m_Usb->ControlEndPt->XferData((PUCHAR)(pOrder->pData),lBytes))
+		{
+			pOrder->DataBytes=lBytes;
+			return 0;
+		}
+		pOrder->DataBytes=0;
+	}
+	return -1;
+}
+*/
 int CCCTAPIAppUSB::usbOrderWrapper(int code,int dir,int index,int value,unsigned char *buffer, int &len)
 {
-	USB_ORDER     m_sUsbOrder;
-	BYTE  m_byData[64];
-	m_sUsbOrder.pData=m_byData;
-	m_byData[0] = '0';
-	m_sUsbOrder.ReqCode = code;
-	m_sUsbOrder.Value=value;
-	m_sUsbOrder.Direction = dir;
-	m_sUsbOrder.Index = index;
-	m_sUsbOrder.DataBytes = len;
+	if(m_Usb==NULL&&!m_Usb->IsOpen())
+	{
+		return -1;
+	}
+
+	LONG lBytes=len;
+	m_Usb->ControlEndPt->Target=TGT_DEVICE;
+	m_Usb->ControlEndPt->ReqType=REQ_VENDOR;
+	m_Usb->ControlEndPt->Direction=(CTL_XFER_DIR_TYPE)dir;
+	m_Usb->ControlEndPt->ReqCode=code;
+	m_Usb->ControlEndPt->Value=value;
+	m_Usb->ControlEndPt->Index=index;
+
+	lBytes=len;
+
 	if(dir==ORDER_OUT)
 	{
-		
 		if(len>64)
 		{
 			return -64;
 		}
-		memcpy(m_byData,buffer,len);
-		m_sUsbOrder.DataBytes = len;
-		SendOrder(&m_sUsbOrder);
+		m_Usb->ControlEndPt->XferData(buffer,lBytes);
 		return len;
 	}
 	else
 	{
-		SendOrder(&m_sUsbOrder);
-		if(len>=m_sUsbOrder.DataBytes)
+		m_Usb->ControlEndPt->XferData(buffer,lBytes);
+		if(len>=lBytes)
 		{
-			memcpy(buffer, m_byData, m_sUsbOrder.DataBytes);
-			return m_sUsbOrder.DataBytes;
+			return lBytes;
 		}
 		else//not enough space
 		{
-			return -m_sUsbOrder.DataBytes;
+			return -lBytes;
 		}
 	}
 	
@@ -236,15 +224,8 @@ int CCT_API CCCTAPIAppUSB::WrDeviceSN(unsigned char* buff,int& length)
 }
 void CCT_API CCCTAPIAppUSB::InitSensor(void)
 {
-	USB_ORDER  m_sUsbOrder;
-	BYTE  m_byData[64];
-	m_sUsbOrder.pData=m_byData;
-
-	m_sUsbOrder.ReqCode = 0xF0;
-	m_sUsbOrder.DataBytes = 2;
-	m_sUsbOrder.Direction = 0;
-
-	SendOrder(&m_sUsbOrder);
+	int dummy=2;
+	usbOrderWrapper(0xF0,ORDER_OUT,0,0,0,dummy);
 	return;
 
 }
@@ -377,27 +358,6 @@ int CCCTAPIAppUSB::WriteData( char* pbuff,LONG &lBytes )
 		}
 		return -1;
 	}
-}
-int CCCTAPIAppUSB::SendOrder( PUSB_ORDER pOrder )
-{
-	if(m_Usb!=NULL&&m_Usb->IsOpen())
-	{
-		m_Usb->ControlEndPt->Target=(CTL_XFER_TGT_TYPE)pOrder->Target;
-		m_Usb->ControlEndPt->ReqType=(CTL_XFER_REQ_TYPE)pOrder->ReqType;
-		m_Usb->ControlEndPt->Direction=(CTL_XFER_DIR_TYPE)pOrder->Direction;
-		m_Usb->ControlEndPt->ReqCode=pOrder->ReqCode;
-		m_Usb->ControlEndPt->Value=pOrder->Value;
-		m_Usb->ControlEndPt->Index=pOrder->Index;
-		LONG lBytes=0;
-		lBytes=pOrder->DataBytes;
-		if(m_Usb->ControlEndPt->XferData((PUCHAR)(pOrder->pData),lBytes))
-		{
-			pOrder->DataBytes=lBytes;
-			return 0;
-		}
-		pOrder->DataBytes=0;
-	}
-	return -1;
 }
 int CCCTAPIAppUSB::Reset()
 {

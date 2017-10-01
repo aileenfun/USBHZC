@@ -47,7 +47,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>Q:\github\qbc\CCTAPI01\CCTAPI;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\CCTAPI01\CCTAPI\;$(IncludePath)</IncludePath>
     <LibraryPath>$(OutDir);$(ProjectDir);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
