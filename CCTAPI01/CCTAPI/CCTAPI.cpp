@@ -82,6 +82,8 @@ int CCT_API CCCTAPIAppUSB::stopCap()
 }
 void CCT_API CCCTAPIAppUSB::WrSensorReg(unsigned short iAddr, unsigned short iValue)
 {
+	if(!b_opened)
+		return ;
 	int len=2;
 	usbOrderWrapper(0xF1,ORDER_OUT,iAddr,iValue,0,len);
 	return;
@@ -89,6 +91,8 @@ void CCT_API CCCTAPIAppUSB::WrSensorReg(unsigned short iAddr, unsigned short iVa
 }
 unsigned short CCT_API CCCTAPIAppUSB::RdSensorReg(unsigned short iAddr)
 {
+	if(!b_opened)
+		return -1;
 	UINT8 rxval[2];
 	int len=2;
 	usbOrderWrapper(0xF2,ORDER_IN,iAddr,0,rxval,len);
@@ -100,6 +104,8 @@ unsigned short CCT_API CCCTAPIAppUSB::RdSensorReg(unsigned short iAddr)
 }
 void CCCTAPIAppUSB::WrFpgaReg(unsigned char iAddr, unsigned char iValue)
 {
+	if(!b_opened)
+		return ;
 	int len=1;
 	usbOrderWrapper(0xF3,ORDER_OUT,iAddr,iValue,0,len);
 	return;
@@ -164,7 +170,9 @@ int CCCTAPIAppUSB::usbOrderWrapper(int code,int dir,int index,int value,unsigned
 	m_Usb->ControlEndPt->ReqCode=code;
 	m_Usb->ControlEndPt->Value=value;
 	m_Usb->ControlEndPt->Index=index;
-
+	UINT8 dummybuffer[64];
+	if(buffer==NULL)
+		buffer=dummybuffer;
 	lBytes=len;
 
 	if(dir==ORDER_OUT)
@@ -224,6 +232,8 @@ int CCT_API CCCTAPIAppUSB::WrDeviceSN(unsigned char* buff,int& length)
 }
 void CCT_API CCCTAPIAppUSB::InitSensor(void)
 {
+	if(!b_opened)
+		return ;
 	int dummy=2;
 	usbOrderWrapper(0xF0,ORDER_OUT,0,0,0,dummy);
 	return;
@@ -299,6 +309,8 @@ void CCT_API CCCTAPIAppUSB::setAutoGainExpo(bool isAutoGain, bool isAutoExpo)
 
 void  CCT_API CCCTAPIAppUSB::setResolution(unsigned char resNo)
 {
+	if(!b_opened)
+		return;
 	if(resNo==0)//752*480
 	{
 		WrSensorReg(1,1);
