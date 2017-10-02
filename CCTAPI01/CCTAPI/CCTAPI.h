@@ -76,7 +76,7 @@ public:
 	 void destory();
 public:
 	int WriteData(char*pbuff,LONG &lBytes);
-	int SendOrder(PUSB_ORDER pOrder );
+	//int SendOrder(PUSB_ORDER pOrder );
 	int Reset();
 	int DeviceReset();
 	bool b_opened;
