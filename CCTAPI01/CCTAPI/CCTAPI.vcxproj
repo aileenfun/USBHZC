@@ -106,6 +106,10 @@
     <ClCompile Include="CCTAPI.cpp" />
     <ClCompile Include="DataCapture.cpp" />
     <ClCompile Include="DataProcess.cpp" />
+    <ClCompile Include="ini.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="INIReader.cpp" />
     <ClCompile Include="MessageQueue.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -117,6 +121,8 @@
     <ClInclude Include="CyAPI.h" />
     <ClInclude Include="DataCapture.h" />
     <ClInclude Include="DataProcess.h" />
+    <ClInclude Include="ini.h" />
+    <ClInclude Include="INIReader.h" />
     <ClInclude Include="MessageQueue.h" />
     <ClInclude Include="Mutex.h" />
     <ClInclude Include="Resource.h" />

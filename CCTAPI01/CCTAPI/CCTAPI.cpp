@@ -24,12 +24,13 @@ CCT_API CCCTAPIAppUSB::CCCTAPIAppUSB(HANDLE h)
 	m_pDataCapture=NULL;
 	b_opened=false;
 	m_Usb=new CCyUSBDevice(h);
+	
 }
 
 
 int CCT_API CCCTAPIAppUSB::OpenUsb(int devNum)
 {
-	
+	int rst=-1;
 	m_Usb->Open(devNum);
 	if(m_Usb->IsOpen())
 	{
@@ -38,9 +39,18 @@ int CCT_API CCCTAPIAppUSB::OpenUsb(int devNum)
 		m_Usb->ControlEndPt->Value = 0;
 		m_Usb->ControlEndPt->Index = 0;
 		b_opened=true;
-		return m_Usb->VendorID;
+
+		rst=m_Usb->VendorID;
 	}
-	return -1;
+	inireader=new INIReader("config.ini");
+	if(inireader->ParseError()<0)
+	{
+		//cannot read test.ini
+		rst=-2;
+	}
+	int temp=inireader->GetInteger("protocol","version",-1);
+	return rst;
+	
 }
 int CCT_API CCCTAPIAppUSB::CloseUsb()
 {
@@ -156,6 +166,10 @@ int CCCTAPIAppUSB::SendOrder( PUSB_ORDER pOrder )
 	return -1;
 }
 */
+int CCCTAPIAppUSB::usbOrderFromIni(std::string section)
+{
+	return 0;
+}
 int CCCTAPIAppUSB::usbOrderWrapper(int code,int dir,int index,int value,unsigned char *buffer, int &len)
 {
 	if(m_Usb==NULL&&!m_Usb->IsOpen())
@@ -234,8 +248,18 @@ void CCT_API CCCTAPIAppUSB::InitSensor(void)
 {
 	if(!b_opened)
 		return ;
-	int dummy=2;
-	usbOrderWrapper(0xF0,ORDER_OUT,0,0,0,dummy);
+	//int dummy=2;
+	//usbOrderWrapper(0xF0,ORDER_OUT,0,0,0,dummy);
+
+	int orderlen=inireader->GetInteger("Init Sensor","OrderLen",-1);
+	int req=inireader->GetInteger("Init Sensor","REQ",-1);
+	int dir=inireader->Get("Init Sensor","DIR","UNKNOWN")=="OUT"?ORDER_OUT:ORDER_IN;
+	int value=inireader->GetInteger("Init Sensor","VALUE",-1);
+	int index=inireader->GetInteger("Init Sensor","INDEX",-1);
+	int datalen=inireader->GetInteger("Init Sensor","DataLen",-1);
+	datalen=datalen>0?datalen:1;
+	unsigned char *buffer=new unsigned char[datalen];
+	usbOrderWrapper(req,dir,index,value,buffer,datalen);
 	return;
 
 }

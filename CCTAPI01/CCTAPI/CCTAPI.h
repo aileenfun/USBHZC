@@ -16,6 +16,7 @@
 #include "resource.h"		// main symbols
 #include "DataCapture.h"
 #include "CyAPI.h"
+#include "INIReader.h"
 typedef enum TRIGMODE{TgMd_Auto,TgMd_FPGA,TgMd_Soft,TgMd_OutSig};
 typedef struct USB_ORDER_S
 {
@@ -71,6 +72,7 @@ public:
 	CCT_API int RdDeviceSN(unsigned char* buff,int& len);
 	CCT_API int WrDeviceSN(unsigned char* buff,int& len);
 	CCT_API void SetTrigMode(TRIGMODE m);
+	int usbOrderFromIni(std::string section);
 	int usbOrderWrapper(int code,int dir,int index,int value,unsigned char *buffer, int &len);
 	CCT_API int softTrigOnce();
 	 void destory();
@@ -80,6 +82,7 @@ public:
 	int Reset();
 	int DeviceReset();
 	bool b_opened;
+	INIReader *inireader;
 private:
 	char*         m_pReadBuff;
 	bool m_bUsbOpen;
