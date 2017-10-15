@@ -1,0 +1,235 @@
+int HZC0201030_CCDCtrl::UsbInit(int CCD_ID)
+{
+	//int len = 4;
+	
+	if (h_cctapi == NULL)
+	h_cctapi = new CCCTAPIAppUSB(this);
+	
+	nIndex = CCD_ID;
+	if (h_cctapi->b_opened == true) { h_cctapi->CloseUsb(); }
+	if (h_cctapi->OpenUsb(nIndex)<0)
+	{
+		//UsbInitFlag = true;
+		return 0;
+	}
+	h_cctapi->SendUsbSpeed2Fpga(1);
+	unsigned char num0[4];
+	ReadDeviceID(num0);
+	int temp0 = num0[0] << 8 * 0;
+	temp0 += num0[1] << 8 * 1;
+	temp0 += num0[2] << 8 * 2;
+	temp0 += num0[3] << 8 * 3;
+	SubNum = temp0;
+	if ((int)SubNum == HZC0201030HB)
+	{
+		switch (nIndex)
+		{
+		case 0:
+			if (h_cctapi->startCap(C480_H, C752_W, HZC0201030_RawCallBack1, 0)<0)
+			{
+				return 31;
+			}
+			break;
+		case 1:
+			if (h_cctapi->startCap(C480_H, C752_W, HZC0201030_RawCallBack2, 0)<0)
+			{
+				return 32;
+			}
+			break;
+		case 2:
+			if (h_cctapi->startCap(C480_H, C752_W, HZC0201030_RawCallBack3, 0)<0)
+			{
+				return 33;
+			}
+			break;
+		case 3:
+			if (h_cctapi->startCap(C480_H, C752_W, HZC0201030_RawCallBack4, 0)<0)
+			{
+				return 34;
+			}
+			break;
+		case 4:
+			if (h_cctapi->startCap(C480_H, C752_W, HZC0201030_RawCallBack5, 0)<0)
+			{
+				return 35;
+			}
+			break;
+		case 5:
+			if (h_cctapi->startCap(C480_H, C752_W, HZC0201030_RawCallBack6, 0)<0)
+			{
+				return 36;
+			}
+			break;
+		case 6:
+			if (h_cctapi->startCap(C480_H, C752_W, HZC0201030_RawCallBack7, 0)<0)
+			{
+				return 37;
+			}
+			break;
+		case 7:
+			if (h_cctapi->startCap(C480_H, C752_W, HZC0201030_RawCallBack8, 0)<0)
+			{
+				return 38;
+			}
+			break;
+		}
+	
+	}
+	if (SubNum == HZC0201130HB)
+	{
+		switch (nIndex)
+		{
+		case 0:
+			if (h_cctapi->startCap(C1024_H, C1280_W, HZC0201130_RawCallBack1, 0)<0)
+			{
+				return 131;
+			}
+			break;
+		case 1:
+			if (h_cctapi->startCap(C1024_H, C1280_W, HZC0201130_RawCallBack2, 0)<0)
+			{
+				return 132;
+			}
+			break;
+		case 2:
+			if (h_cctapi->startCap(C1024_H, C1280_W, HZC0201130_RawCallBack3, 0)<0)
+			{
+				return 133;
+			}
+			break;
+		case 3:
+			if (h_cctapi->startCap(C1024_H, C1280_W, HZC0201130_RawCallBack4, 0)<0)
+			{
+				return 134;
+			}
+			break;
+		case 4:
+		
+		
+		
+		if (h_cctapi->startCap(C1024_H, C1280_W, HZC0201130_RawCallBack5, 0)<0)
+			{
+				return 135;
+			}
+			break;
+		case 5:
+			if (h_cctapi->startCap(C1024_H, C1280_W, HZC0201130_RawCallBack6, 0)<0)
+			{
+				return 136;
+			}
+			break;
+		case 6:
+			if (h_cctapi->startCap(C1024_H, C1280_W, HZC0201130_RawCallBack7, 0)<0)
+			{
+				return 137;
+			}
+			break;
+		case 7:
+			if (h_cctapi->startCap(C1024_H, C1280_W, HZC0201130_RawCallBack8, 0)<0)
+			{
+				return 138;
+			}
+			break;
+		}
+	}
+	h_cctapi->SetTrigMode(TgMd_Soft);
+	h_cctapi->setAutoGainExpo(false, false);
+	h_cctapi->setExpoValue(30);
+	h_cctapi->setGainValue(30);
+	h_cctapi->setResolution(0);
+	return 1;
+}
+
+int HZC0106030F_CCDCtrl::Init_HZC0106030F(DWORD camIP,DWORD pcIP)
+{
+	int TPData[10];
+    if(initFlag == true)return -1;
+	switch(HZC_CCD_id)
+	{
+	case 1:
+        board=addInstance((LPVOID*)this,RawCallBack1);
+		break;
+	case 2:
+		board=addInstance((LPVOID*)this,RawCallBack2);
+		break;
+	}
+	CStringA s_tempA;
+	s_tempA = "ab:ce:c0:a8:01:9b";
+	const size_t newsizea = (s_tempA.GetLength()+1);
+	char * pc=new char [newsizea];
+	strcpy_s(pc,newsizea,s_tempA);
+	unsigned char byAddress[6] = {'\0'};
+	prop.MACaddr = ConverMacAddressStringIntoByte(pc,byAddress);
+	prop.packetSize = 1024;
+	prop.interval_time = 4096;
+	prop.camIP = camIP;//T(inet_addr("192.168.1.2")) ;//相机地址
+	prop.pcIP =  pcIP;//T(inet_addr("192.168.1.3")) ;//"192.168.1.3";//PC机地址
+	prop.camCnt = 6;
+	sendProp(prop,board,1);
+	board = initCCTAPI(board);
+	if(startCap(C480_H,C640_W,board)<0)
+	{
+		//TRACE("\n ======================== >Camera %d failed to initialize !!",board);
+		clientPropStruct *devprop = new clientPropStruct();
+		getProp(board, devprop);
+
+		if (devprop->camCnt>0 && devprop->camCnt)
+		prop.camCnt = devprop->camCnt;
+		sendProp(prop, board, 1);
+		return 1;
+	}
+	else
+	{
+		initFlag = true;
+	}
+	return 0;
+}
+
+
+int HZC0106030F_CCDCtrl::Init_HZC0106030F(DWORD camIP,DWORD pcIP)
+{
+	//开启UDP
+	int TPData[10];
+    if(initFlag == true)return -1;
+	switch(HZC_CCD_id)
+	{
+	case 1:
+        board=addInstance((LPVOID*)this,RawCallBack1);
+		break;
+	case 2:
+		board=addInstance((LPVOID*)this,RawCallBack2);
+		break;
+	}
+	CStringA s_tempA;
+	sendProp(prop, board, 1);
+	clientPropStruct *devprop = new clientPropStruct();
+	s_tempA = "ab:ce:c0:a8:01:9b";
+	const size_t newsizea = (s_tempA.GetLength()+1);
+	char * pc=new char [newsizea];
+	strcpy_s(pc,newsizea,s_tempA);
+	unsigned char byAddress[6] = {'\0'};
+	prop.MACaddr = ConverMacAddressStringIntoByte(pc,byAddress);
+	prop.packetSize = 1024;
+	prop.interval_time = 4096;
+	prop.camIP = camIP;//T(inet_addr("192.168.1.2")) ;//相机地址
+	prop.pcIP =  pcIP;//T(inet_addr("192.168.1.3")) ;//"192.168.1.3";//PC机地址
+	prop.camCnt = 6;
+	sendProp(prop, board, 1);
+	//再开启命令给硬件
+	getProp(board, devprop);
+	if (devprop->camCnt>0 && devprop->camCnt)
+		prop.camCnt = devprop->camCnt;
+	sendProp(prop, board, 1);
+	board = initCCTAPI(board);
+	//最后设置回调
+	if(startCap(C480_H,C640_W,board)<0)
+	{
+		//TRACE("\n ======================== >Camera %d failed to initialize !!",board);
+		return 1;
+	}
+	else
+	{
+		initFlag = true;
+	}
+	return 0;
+}

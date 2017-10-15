@@ -14,6 +14,7 @@
     <ProjectGuid>{5E24925D-8F19-4EB8-B48D-9236CACFD122}</ProjectGuid>
     <RootNamespace>CCTAPI</RootNamespace>
     <Keyword>MFCDLLProj</Keyword>
+    <ProjectName>USB_API</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -42,7 +43,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(IncludePath)</IncludePath>
-    <TargetName>$(ProjectName)USB</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -58,7 +59,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ModuleDefinitionFile>.\CCTAPI.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>.\USB_API.def</ModuleDefinitionFile>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <Midl>
@@ -98,32 +99,32 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="CCTAPI.def" />
+    <None Include="USB_API.def" />
     <None Include="ReadMe.txt" />
     <None Include="res\CCTAPI.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CCTAPI.cpp" />
-    <ClCompile Include="DataCapture.cpp" />
-    <ClCompile Include="DataProcess.cpp" />
+    <ClCompile Include="USB_API.cpp" />
+    <ClCompile Include="USB_DataCapture.cpp" />
+    <ClCompile Include="USB_DataProcess.cpp" />
     <ClCompile Include="ini.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="INIReader.cpp" />
-    <ClCompile Include="MessageQueue.cpp" />
+    <ClCompile Include="USB_MessageQueue.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CCTAPI.h" />
+    <ClInclude Include="USB_API.h" />
     <ClInclude Include="CyAPI.h" />
-    <ClInclude Include="DataCapture.h" />
-    <ClInclude Include="DataProcess.h" />
+    <ClInclude Include="USB_DataCapture.h" />
+    <ClInclude Include="USB_DataProcess.h" />
     <ClInclude Include="ini.h" />
     <ClInclude Include="INIReader.h" />
-    <ClInclude Include="MessageQueue.h" />
+    <ClInclude Include="USB_MessageQueue.h" />
     <ClInclude Include="Mutex.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />

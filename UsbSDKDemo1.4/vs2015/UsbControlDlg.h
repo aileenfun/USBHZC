@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "CCTAPI.h"
+#include "USB_API.h"
 #include "VideoDlg.h"
 #include "afxwin.h"
 #include <cv.hpp>

@@ -115,6 +115,7 @@ CUsbControlDlg::CUsbControlDlg(CWnd* pParent /*=NULL*/)
 
 CUsbControlDlg::~CUsbControlDlg()
 {
+	
 }
 
 void CUsbControlDlg::DoDataExchange(CDataExchange* pDX)
@@ -253,6 +254,7 @@ BOOL CUsbControlDlg::OnInitDialog()
 	SetDlgItemText(IDC_EDITHwTrigFreq, L"25");
 	CCyUSBDevice udev=new CCyUSBDevice(NULL);
 	devcnt=udev.DeviceCount();
+	udev.Close();
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -592,6 +594,7 @@ void CUsbControlDlg::OnTimer(UINT_PTR nIDEvent)
 
 
 	CString str;
+	/*
 	switch(nIDEvent)
 	{
 		case 1:
@@ -624,6 +627,7 @@ void CUsbControlDlg::OnTimer(UINT_PTR nIDEvent)
 		default:
 			break;
 	}
+	*/
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -1088,7 +1092,8 @@ void CUsbControlDlg::OnBnClickedButtonCloseUsb()
 	OnBnClickedBtnStopcapture();
 	h_cctapi->CloseUsb();
 	h_cctapi2->CloseUsb();
-	
+	delete h_cctapi;
+	delete h_cctapi2;
 }
 
 

@@ -81,7 +81,7 @@
     <Library Include="CyAPI.lib">
       <Filter>lib</Filter>
     </Library>
-    <Library Include="Debug\CCTAPIUSB.lib">
+    <Library Include="Debug\USB_API.lib">
       <Filter>lib</Filter>
     </Library>
   </ItemGroup>
